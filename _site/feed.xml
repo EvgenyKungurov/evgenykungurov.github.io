@@ -1,1 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-04-10T11:46:52+09:00</updated><id>http://localhost:4000/</id><title type="html">Awesome development blog</title><subtitle>Разработка на Ruby и Ruby on Rails. RSpec/TDD.</subtitle><entry><title type="html">Тестирование моделей</title><link href="http://localhost:4000/rspec/2018/04/10/rspec.html" rel="alternate" type="text/html" title="Тестирование моделей" /><published>2018-04-10T00:05:41+09:00</published><updated>2018-04-10T00:05:41+09:00</updated><id>http://localhost:4000/rspec/2018/04/10/rspec</id><content type="html" xml:base="http://localhost:4000/rspec/2018/04/10/rspec.html"></content><author><name></name></author><category term="rspec" /><summary type="html"></summary></entry><entry><title type="html">Паттерны из книги Confident Code by Avgi Grimm</title><link href="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html" rel="alternate" type="text/html" title="Паттерны из книги Confident Code by Avgi Grimm" /><published>2018-04-10T00:05:41+09:00</published><updated>2018-04-10T00:05:41+09:00</updated><id>http://localhost:4000/ruby/2018/04/10/avdi_grimm</id><content type="html" xml:base="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html"></content><author><name></name></author><category term="ruby" /><summary type="html"></summary></entry></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-04-11T00:03:31+09:00</updated><id>http://localhost:4000/</id><title type="html">Awesome development blog</title><subtitle>Разработка на Ruby и Ruby on Rails. RSpec/TDD.</subtitle><entry><title type="html">Тестирование моделей</title><link href="http://localhost:4000/rspec/2018/04/10/rspec.html" rel="alternate" type="text/html" title="Тестирование моделей" /><published>2018-04-10T00:05:41+09:00</published><updated>2018-04-10T00:05:41+09:00</updated><id>http://localhost:4000/rspec/2018/04/10/rspec</id><content type="html" xml:base="http://localhost:4000/rspec/2018/04/10/rspec.html"></content><author><name></name></author><category term="rspec" /><summary type="html"></summary></entry><entry><title type="html">Паттерны из книги Confident Code by Avgi Grimm</title><link href="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html" rel="alternate" type="text/html" title="Паттерны из книги Confident Code by Avgi Grimm" /><published>2018-04-10T00:05:41+09:00</published><updated>2018-04-10T00:05:41+09:00</updated><id>http://localhost:4000/ruby/2018/04/10/avdi_grimm</id><content type="html" xml:base="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html">&lt;p&gt;Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Collecting input&lt;/li&gt;
+  &lt;li&gt;Performing work&lt;/li&gt;
+  &lt;li&gt;Delivering output&lt;/li&gt;
+  &lt;li&gt;Handling failures&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://dl3.joxi.net/drive/2018/04/10/0018/2910/1186654/54/62df256b6b.jpg&quot; alt=&quot;Процесс&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Далее нам необходимо всегда делить виртульно наш код на сообщения и получателя.
+Выглядит это так:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://dl3.joxi.net/drive/2018/04/10/0018/2910/1186654/54/ff7d5be6a0.jpg&quot; alt=&quot;message_role&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Итак по порядку.&lt;/p&gt;
+
+&lt;h2 id=&quot;collecting-input&quot;&gt;Collecting Input&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;h1 id=&quot;introduction-to-collecting-input&quot;&gt;Introduction to collecting input&lt;/h1&gt;
+    &lt;p&gt;Разделять методы по их основным предназначением.
+Одна задача на класс/метод дает нам возможность уменьшить связность между кодовой базой и уменьшить потенциальные баги.
+Создавать классы и константы, которые можно дальше использовать в других классах/методах. Если что-то нужно поменять, то поменяется в одном месте, а не во всей кодовой базе.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Use built-in conversion protocols
+Conditionally call conversion methods
+Define your own conversion protocols
+Define conversions to user-defined types
+Table of Contents
+Use built-in conversion functions
+Use the Array() conversion function to array-ify inputs
+Define conversion functions
+Replace “string typing” with classes
+Wrap collaborators in Adapters
+Use transparent adapters to gradually introduce abstraction
+Reject unworkable values with preconditions
+Use #fetch to assert the presence of Hash keys
+Use #fetch for defaults
+Document assumptions with assertions
+Handle special cases with a Guard Clause
+Represent special cases as objects
+Represent do-nothing cases as null objects
+Substitute a benign value for nil
+Use symbols as placeholder objects
+Bundle arguments into parameter objects
+Yield a parameter builder object
+Receive policies instead of data&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Delivering Results
+Write total functions
+Call back instead of returning
+Represent failure with a benign value
+Represent failure with a special case object
+Return a status object
+Yield a status object
+Signal early termination with throw&lt;/li&gt;
+  &lt;li&gt;Handling Failure
+Prefer top-level rescue clause
+Use checked methods for risky operations
+Use bouncer methods&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="ruby" /><summary type="html">Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам: Collecting input Performing work Delivering output Handling failures</summary></entry></feed>

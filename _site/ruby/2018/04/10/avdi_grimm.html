@@ -7,15 +7,15 @@
 <meta name="generator" content="Jekyll v3.7.3" />
 <meta property="og:title" content="Паттерны из книги Confident Code by Avgi Grimm" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Разработка на Ruby и Ruby on Rails. RSpec/TDD." />
-<meta property="og:description" content="Разработка на Ruby и Ruby on Rails. RSpec/TDD." />
+<meta name="description" content="Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам: Collecting input Performing work Delivering output Handling failures" />
+<meta property="og:description" content="Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам: Collecting input Performing work Delivering output Handling failures" />
 <link rel="canonical" href="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html" />
 <meta property="og:url" content="http://localhost:4000/ruby/2018/04/10/avdi_grimm.html" />
 <meta property="og:site_name" content="Awesome development blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2018-04-10T00:05:41+09:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","url":"http://localhost:4000/ruby/2018/04/10/avdi_grimm.html","headline":"Паттерны из книги Confident Code by Avgi Grimm","dateModified":"2018-04-10T00:05:41+09:00","datePublished":"2018-04-10T00:05:41+09:00","description":"Разработка на Ruby и Ruby on Rails. RSpec/TDD.","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/ruby/2018/04/10/avdi_grimm.html"},"@context":"http://schema.org"}</script>
+{"@type":"BlogPosting","url":"http://localhost:4000/ruby/2018/04/10/avdi_grimm.html","headline":"Паттерны из книги Confident Code by Avgi Grimm","dateModified":"2018-04-10T00:05:41+09:00","datePublished":"2018-04-10T00:05:41+09:00","description":"Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам: Collecting input Performing work Delivering output Handling failures","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/ruby/2018/04/10/avdi_grimm.html"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Awesome development blog" /></head>
 <body><header class="site-header" role="banner">
@@ -47,7 +47,71 @@
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    
+    <p>Основная концепция книги сводится к тому, чтобы все процессы сводились к 4 шагам:</p>
+<ul>
+  <li>Collecting input</li>
+  <li>Performing work</li>
+  <li>Delivering output</li>
+  <li>Handling failures</li>
+</ul>
+
+<p><img src="http://dl3.joxi.net/drive/2018/04/10/0018/2910/1186654/54/62df256b6b.jpg" alt="Процесс" /></p>
+
+<p>Далее нам необходимо всегда делить виртульно наш код на сообщения и получателя.
+Выглядит это так:</p>
+
+<p><img src="http://dl3.joxi.net/drive/2018/04/10/0018/2910/1186654/54/ff7d5be6a0.jpg" alt="message_role" /></p>
+
+<p>Итак по порядку.</p>
+
+<h2 id="collecting-input">Collecting Input</h2>
+
+<ul>
+  <li>
+    <h1 id="introduction-to-collecting-input">Introduction to collecting input</h1>
+    <p>Разделять методы по их основным предназначением.
+Одна задача на класс/метод дает нам возможность уменьшить связность между кодовой базой и уменьшить потенциальные баги.
+Создавать классы и константы, которые можно дальше использовать в других классах/методах. Если что-то нужно поменять, то поменяется в одном месте, а не во всей кодовой базе.</p>
+  </li>
+</ul>
+
+<p>Use built-in conversion protocols
+Conditionally call conversion methods
+Define your own conversion protocols
+Define conversions to user-defined types
+Table of Contents
+Use built-in conversion functions
+Use the Array() conversion function to array-ify inputs
+Define conversion functions
+Replace “string typing” with classes
+Wrap collaborators in Adapters
+Use transparent adapters to gradually introduce abstraction
+Reject unworkable values with preconditions
+Use #fetch to assert the presence of Hash keys
+Use #fetch for defaults
+Document assumptions with assertions
+Handle special cases with a Guard Clause
+Represent special cases as objects
+Represent do-nothing cases as null objects
+Substitute a benign value for nil
+Use symbols as placeholder objects
+Bundle arguments into parameter objects
+Yield a parameter builder object
+Receive policies instead of data</p>
+<ul>
+  <li>Delivering Results
+Write total functions
+Call back instead of returning
+Represent failure with a benign value
+Represent failure with a special case object
+Return a status object
+Yield a status object
+Signal early termination with throw</li>
+  <li>Handling Failure
+Prefer top-level rescue clause
+Use checked methods for risky operations
+Use bouncer methods</li>
+</ul>
 
   </div><a class="u-url" href="/ruby/2018/04/10/avdi_grimm.html" hidden></a>
 </article>
