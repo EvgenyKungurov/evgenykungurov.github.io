@@ -62,6 +62,10 @@
 
 <p><img src="http://dl3.joxi.net/drive/2018/04/10/0018/2910/1186654/54/ff7d5be6a0.jpg" alt="message_role" /></p>
 
+<p>В книге много примеров, которые по мнению автора, должны работать с разными аргументами для методов и классов.
+Автор так же намекает, что обычно это происходит с API.
+Если мы работаем с внутренней реализацией, то по-моему мнению это чаще всего лишнее и для корректной работы достаточно поддерживать только один ожидаемый тип аргумента.</p>
+
 <p>Итак по порядку.</p>
 
 <h2 id="collecting-input">Collecting Input</h2>
@@ -73,45 +77,622 @@
 Одна задача на класс/метод дает нам возможность уменьшить связность между кодовой базой и уменьшить потенциальные баги.
 Создавать классы и константы, которые можно дальше использовать в других классах/методах. Если что-то нужно поменять, то поменяется в одном месте, а не во всей кодовой базе.</p>
   </li>
+  <li>
+    <h1 id="use-built-in-conversion-protocols">Use built-in conversion protocols</h1>
+    <p>Встроенные протоколы преобразования полезны когда необходимо дать объекту поведение схожее с другим типом.
+Это делается путем неявного вызова встроенных методов руби</p>
+  </li>
 </ul>
 
-<p>Use built-in conversion protocols
-Conditionally call conversion methods
-Define your own conversion protocols
-Define conversions to user-defined types
-Table of Contents
-Use built-in conversion functions
-Use the Array() conversion function to array-ify inputs
-Define conversion functions
-Replace “string typing” with classes
-Wrap collaborators in Adapters
-Use transparent adapters to gradually introduce abstraction
-Reject unworkable values with preconditions
-Use #fetch to assert the presence of Hash keys
-Use #fetch for defaults
-Document assumptions with assertions
-Handle special cases with a Guard Clause
-Represent special cases as objects
-Represent do-nothing cases as null objects
-Substitute a benign value for nil
-Use symbols as placeholder objects
-Bundle arguments into parameter objects
-Yield a parameter builder object
-Receive policies instead of data</p>
+<p>Таблица явных и не явных методов:</p>
+
+<p><img src="http://dl3.joxi.net/drive/2018/04/11/0018/2910/1186654/54/f709963af5.jpg" alt="table" />
+<img src="http://dl3.joxi.net/drive/2018/04/11/0018/2910/1186654/54/787932ff80.jpg" alt="table" /></p>
+
+<p>Т.к. мы работаем с объектно-ориентированным языком, то мы обычно оборачиваем все в объекты.</p>
+
+<p>Допустим если у нас есть массив</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="n">winners</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Homestar"</span><span class="p">,</span>
+    <span class="s2">"King of Town"</span><span class="p">,</span>
+    <span class="s2">"Marzipan"</span><span class="p">,</span>
+    <span class="s2">"Strongbad"</span>
+  <span class="p">]</span></code></pre></figure>
+
+<p>И нам нужна функция, которая бы выводила из массива призёров в каком-то виде.
+Мы можем воспользоваться Struct.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="no">Place</span> <span class="o">=</span> <span class="no">Struct</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:prize</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">def</span> <span class="nf">to_int</span>
+      <span class="n">index</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<p>В структуре мы определили не явный метод to_int. Этот трюк позволит делать вот так:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="n">first</span> <span class="o">=</span> <span class="no">Place</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="ss">:first</span><span class="p">,</span> <span class="ss">:car</span><span class="p">)</span>
+  <span class="n">winners</span><span class="p">[</span><span class="n">first</span><span class="p">]</span>
+  <span class="c1">#=&gt; 'Homestar'</span></code></pre></figure>
+
+<p>Или вот еще:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">EmacsConfigFile</span>
+    <span class="k">def</span> <span class="nf">initialize</span>
+      <span class="vi">@filename</span> <span class="o">=</span> <span class="s2">"</span><span class="si">#{</span><span class="no">ENV</span><span class="p">[</span><span class="s1">'HOME'</span><span class="p">]</span><span class="si">}</span><span class="s2">/.emacs"</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">to_path</span>
+      <span class="vi">@filename</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">emacs_config</span> <span class="o">=</span> <span class="no">EmacsConfigFile</span><span class="p">.</span><span class="nf">new</span>
+  <span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">emacs_config</span><span class="p">).</span><span class="nf">lines</span><span class="p">.</span><span class="nf">count</span></code></pre></figure>
+
+<p>Еще пример:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"> <span class="s1">'Сейчас'</span> <span class="o">+</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+  <span class="c1">#=&gt;can't convert Time into String (TypeError)</span></code></pre></figure>
+
+<p>Все дело в том, что у времени нет не явного метода to_str.
+А вот если мы будем использовать интерполяцию, то будем вызван явный метод to_s</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"> <span class="s2">"Сейчас </span><span class="si">#{</span><span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="si">}</span><span class="s2">"</span>
+  <span class="c1">#=&gt;Сейчас 2018-04-11 10:09:17 +0900</span></code></pre></figure>
+
+<p>В каких случаях нам необходимо использовать явные или не явные методы?</p>
+
+<p>Явные методы даны программистам, чтобы человек сам принимал решение когда необходимо принудительно привести к определенному типу.</p>
+
+<p>Бывает методы принимают аргументы, но аргумент может оказаться nil.</p>
+
+<p>Приведу пример:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"> <span class="k">def</span> <span class="nf">set_speed</span><span class="p">(</span><span class="n">rpm</span><span class="p">)</span>
+   <span class="n">value</span> <span class="o">=</span> <span class="n">rpm</span><span class="p">.</span><span class="nf">to_i</span>
+   <span class="nb">puts</span> <span class="s2">"current speed is </span><span class="si">#{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span>
+ <span class="k">end</span></code></pre></figure>
+
+<p>Что будет если аргументом будет nil?</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"> <span class="kp">nil</span><span class="p">.</span><span class="nf">to_i</span>
+ <span class="c1">#=&gt; 0</span></code></pre></figure>
+
+<p>В этом случае у нас будет вывод текущей скорости возможно не тот, что мы ждем.</p>
+
+<p>Чтобы у нас сразу произошла ошибка, можно сделать несколькими способами. Например добавить условие с проверкой.
+Но книга ‘уверенный код’ показывает, что мы можем это сделать более удобно.</p>
+
+<p>Изменим наш пример:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"> <span class="k">def</span> <span class="nf">set_speed</span><span class="p">(</span><span class="n">rpm</span><span class="p">)</span>
+   <span class="n">value</span> <span class="o">=</span> <span class="n">rpm</span><span class="p">.</span><span class="nf">to_int</span>
+   <span class="nb">puts</span> <span class="s2">"current speed is </span><span class="si">#{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span>
+ <span class="k">end</span>
+
+ <span class="n">set_speed</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
+ <span class="c1">#=&gt; undefined method `to_int' for nil:NilClass (NoMethodError)</span></code></pre></figure>
+
+<p>Вот оно! Стразу ошибка. Мы сможем быстро отреагировать и понять где ошибка по stacktrace.</p>
+
+<p>Под словом confident code подразумевается, что наш код будет иметь как можно меньше проверок, больше ясности кода, как будто мы читаем книгу.
+Далее еще будут примеры, где мы все-таки будем использовать raise и другие техники, но это все-лишь для того, чтобы опять же упростить и свести все проверки к минимуму. Чтобы наша программа сразу же нам говорила, где проблема, а не скрывала ее до тех пор, пока где-то глубоко не появится ошибка, которую будет уже в разы сложнее диагностировать.</p>
+
 <ul>
-  <li>Delivering Results
-Write total functions
-Call back instead of returning
-Represent failure with a benign value
-Represent failure with a special case object
-Return a status object
-Yield a status object
-Signal early termination with throw</li>
-  <li>Handling Failure
-Prefer top-level rescue clause
-Use checked methods for risky operations
-Use bouncer methods</li>
+  <li>
+    <h1 id="define-your-own-conversion-protocols">Define your own conversion protocols</h1>
+    <p>Бывают ситуации, когда необходимо сделать свой протокол, т.к. в руби отсутствуют такие.
+Например наш метод ожидает координаты. Обычно это X,Y.</p>
+  </li>
 </ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">start</span><span class="p">.</span><span class="nf">to_coords</span> <span class="k">if</span> <span class="n">start</span><span class="p">.</span><span class="nf">respond_to?</span><span class="p">(</span><span class="ss">:to_coords</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">start</span><span class="p">.</span><span class="nf">to_ary</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Point</span>
+    <span class="nb">attr_reader</span> <span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">,</span> <span class="ss">:name</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">name</span><span class="o">=</span><span class="kp">nil</span><span class="p">)</span>
+      <span class="vi">@x</span><span class="p">,</span> <span class="vi">@y</span><span class="p">,</span> <span class="vi">@name</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">name</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">to_coords</span>
+      <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">start</span> <span class="o">=</span> <span class="no">Point</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">37</span><span class="p">)</span>
+  <span class="n">endpoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="mi">89</span><span class="p">]</span>
+  <span class="n">draw_line</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="define-conversions-to-user-defined-types">Define conversions to user-defined types</h1>
+    <p>Добавляем в метод принудительное ожидание объекта с определенным интерфейсом.
+Это позволит сторонним пользователям API использовать свои собственные классы, которые образают свою логику, но всегда возвращают какой-то результат в ожидаемом интерфейсе(Вообще по идее мы могли бы просто передавать в метод уже готовые значения. Но судя по всему, концепция объектно-ориентированного программирования сводится к тому, что все должно быть объектом. Если вы посмотрите в ROR, то там например почти всегда во всех переменных хранится какой-то объект. Наприме объект request/response в себе содержит переменные, значения которых являются объект, к которому можно обратиться и использовать методы объекта).</p>
+  </li>
+</ul>
+
+<p>Пример:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">report_altitude_change</span><span class="p">(</span><span class="n">current_altitude</span><span class="p">,</span> <span class="n">previous_altitude</span><span class="p">)</span>
+    <span class="n">change</span> <span class="o">=</span> <span class="n">current_altitude</span><span class="p">.</span><span class="nf">to_meters</span> <span class="o">-</span> <span class="n">previous_altitude</span><span class="p">.</span><span class="nf">to_meters</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Meters</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">to_meters</span>
+     <span class="nb">self</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">-</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+      <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span><span class="p">.</span><span class="nf">to_meters</span><span class="p">.</span><span class="nf">value</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Feet</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">to_meters</span>
+      <span class="no">Meters</span><span class="p">.</span><span class="nf">new</span><span class="p">((</span><span class="n">value</span> <span class="o">*</span> <span class="mf">0.3048</span><span class="p">).</span><span class="nf">round</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">report_altitude_change</span><span class="p">(</span><span class="no">Meters</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="no">Feet</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="use-built-in-conversion-functions">Use built-in conversion functions</h1>
+    <p>Используйте встроенные функции преобразования.
+В руби мы можем на любом объекте использовать методы вида to_i, to_s, to_h.
+Но эти методы могут вернуть не то, что мы ожидаем.
+В Kerner есть функции :Array(), Float(), String(), Integer(), Rational(), Complex() etc.
+Они позволяют гарантированно вернуть то, что нам нужно. В противном случае будет ошибка.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="no">Integer</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># =&gt; 10</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="mf">10.1</span><span class="p">)</span> <span class="c1"># =&gt; 10</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="s2">"0x10"</span><span class="p">)</span> <span class="c1"># =&gt; 16</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="s2">"010"</span><span class="p">)</span> <span class="c1"># =&gt; 8</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="s2">"0b10"</span><span class="p">)</span> <span class="c1"># =&gt; 2</span>
+  <span class="c1"># Time defines #to_i</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">)</span> <span class="c1"># =&gt; 1341469768</span>
+
+  <span class="s2">"ham sandwich"</span><span class="p">.</span><span class="nf">to_i</span> <span class="c1"># =&gt; 0</span>
+  <span class="no">Integer</span><span class="p">(</span><span class="s2">"ham sandwich"</span><span class="p">)</span> <span class="c1"># =&gt;</span>
+  <span class="c1"># ~&gt; -:2:in `Integer': invalid value for Integer(): "ham sandwich" (ArgumentError)</span>
+
+
+  <span class="no">Array</span><span class="p">(</span><span class="s2">"foo"</span><span class="p">)</span> <span class="c1"># =&gt; ["foo"]</span>
+  <span class="no">Array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="c1"># =&gt; [1, 2, 3]</span>
+  <span class="no">Array</span><span class="p">([])</span> <span class="c1"># =&gt; []</span>
+  <span class="no">Array</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span> <span class="c1"># =&gt; []</span>
+  <span class="no">Array</span><span class="p">({</span><span class="ss">:a</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">:b</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">})</span> <span class="c1"># =&gt; [[:a, 1], [:b, 2]]</span>
+  <span class="no">Array</span><span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># =&gt; [1, 2, 3, 4, 5]</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="write-total-functions">Write total functions</h1>
+    <p>Чтобы уменьшить кол-во ошибок если метод вернет nil или пустую строку, можно воспользоваться методами массива, чтобы всегда возвращать массив.</p>
+  </li>
+  <li>
+    <h1 id="replace-string-typing-with-classes">Replace “string typing” with classes</h1>
+  </li>
+</ul>
+
+<p>Заменяйте строковые значения на классы. Это позволит избежать внутренних ошибок в программе, т.к. неверное имя класса приведет к ошибке.</p>
+
+<p>Пример плохого класса:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">TrafficLight</span>
+    <span class="k">def</span> <span class="nf">change_to</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="vi">@state</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">signal</span>
+      <span class="k">case</span> <span class="vi">@state</span>
+      <span class="k">when</span> <span class="s2">"stop"</span> <span class="k">then</span> <span class="n">turn_on_lamp</span><span class="p">(</span><span class="ss">:red</span><span class="p">)</span>
+      <span class="k">when</span> <span class="s2">"caution"</span>
+        <span class="n">turn_on_lamp</span><span class="p">(</span><span class="ss">:yellow</span><span class="p">)</span>
+        <span class="n">ring_warning_bell</span>
+      <span class="k">when</span> <span class="s2">"proceed"</span> <span class="k">then</span> <span class="n">turn_on_lamp</span><span class="p">(</span><span class="ss">:green</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">next_state</span>
+      <span class="k">case</span> <span class="vi">@state</span>
+      <span class="k">when</span> <span class="s2">"stop"</span> <span class="k">then</span> <span class="s2">"proceed"</span>
+      <span class="k">when</span> <span class="s2">"caution"</span> <span class="k">then</span> <span class="s2">"stop"</span>
+      <span class="k">when</span> <span class="s2">"proceed"</span> <span class="k">then</span> <span class="s2">"caution"</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">turn_on_lamp</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+      <span class="nb">puts</span> <span class="s2">"Turning on </span><span class="si">#{</span><span class="n">color</span><span class="si">}</span><span class="s2"> lamp"</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">ring_warning_bell</span>
+      <span class="nb">puts</span> <span class="s2">"Ring ring ring!"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">light</span> <span class="o">=</span> <span class="no">TrafficLight</span><span class="p">.</span><span class="nf">new</span>
+  <span class="n">light</span><span class="p">.</span><span class="nf">change_to</span><span class="p">(</span><span class="s2">"PROCEED"</span><span class="p">)</span> <span class="c1"># oops, uppercase</span>
+  <span class="n">light</span><span class="p">.</span><span class="nf">signal</span>
+  <span class="nb">puts</span> <span class="s2">"Next state: </span><span class="si">#{</span><span class="n">light</span><span class="p">.</span><span class="nf">next_state</span><span class="p">.</span><span class="nf">inspect</span><span class="si">}</span><span class="s2">"</span>
+  <span class="n">light</span><span class="p">.</span><span class="nf">change_to</span><span class="p">(</span><span class="ss">:stop</span><span class="p">)</span> <span class="c1"># oops, symbol</span>
+  <span class="n">light</span><span class="p">.</span><span class="nf">signal</span>
+  <span class="nb">puts</span> <span class="s2">"Next state: </span><span class="si">#{</span><span class="n">light</span><span class="p">.</span><span class="nf">next_state</span><span class="p">.</span><span class="nf">inspect</span><span class="si">}</span><span class="s2">"</span>
+  <span class="no">Next</span> <span class="ss">state: </span><span class="kp">nil</span>
+  <span class="no">Next</span> <span class="ss">state: </span><span class="kp">nil</span></code></pre></figure>
+
+<p>Попробуем улучшить:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">next_state</span>
+      <span class="vi">@state</span><span class="p">.</span><span class="nf">next_state</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">State</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+      <span class="k">case</span> <span class="n">state</span>
+      <span class="k">when</span> <span class="no">State</span> <span class="k">then</span> <span class="n">state</span>
+      <span class="k">else</span> <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">const_get</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">capitalize</span><span class="p">).</span><span class="nf">new</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Stop</span> <span class="o">&lt;</span> <span class="no">State</span>
+      <span class="k">def</span> <span class="nf">color</span><span class="p">;</span> <span class="s1">'red'</span><span class="p">;</span> <span class="k">end</span>
+      <span class="k">def</span> <span class="nf">next_state</span><span class="p">;</span> <span class="no">Proceed</span><span class="p">.</span><span class="nf">new</span><span class="p">;</span> <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Caution</span> <span class="o">&lt;</span> <span class="no">State</span>
+      <span class="k">def</span> <span class="nf">color</span><span class="p">;</span> <span class="s1">'yellow'</span><span class="p">;</span> <span class="k">end</span>
+      <span class="k">def</span> <span class="nf">next_state</span><span class="p">;</span> <span class="no">Stop</span><span class="p">.</span><span class="nf">new</span><span class="p">;</span> <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nf">signal</span><span class="p">(</span><span class="n">traffic_light</span><span class="p">)</span>
+        <span class="k">super</span>
+        <span class="n">traffic_light</span><span class="p">.</span><span class="nf">ring_warning_bell</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Proceed</span> <span class="o">&lt;</span> <span class="no">State</span>
+      <span class="k">def</span> <span class="nf">color</span><span class="p">;</span> <span class="s1">'green'</span><span class="p">;</span> <span class="k">end</span>
+      <span class="k">def</span> <span class="nf">next_state</span><span class="p">;</span> <span class="no">Caution</span><span class="p">.</span><span class="nf">new</span><span class="p">;</span> <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="n">light</span> <span class="o">=</span> <span class="no">TrafficLight</span><span class="p">.</span><span class="nf">new</span>
+    <span class="n">light</span><span class="p">.</span><span class="nf">change_to</span><span class="p">(</span><span class="ss">:caution</span><span class="p">)</span>
+    <span class="n">light</span><span class="p">.</span><span class="nf">signal</span>
+    <span class="nb">puts</span> <span class="s2">"Next state is: </span><span class="si">#{</span><span class="n">light</span><span class="p">.</span><span class="nf">next_state</span><span class="si">}</span><span class="s2">"</span>
+    <span class="no">Turning</span> <span class="n">on</span> <span class="n">yellow</span> <span class="n">lamp</span>
+    <span class="no">Ring</span> <span class="n">ring</span> <span class="n">ring!</span>
+    <span class="no">Next</span> <span class="n">state</span> <span class="ss">is: </span><span class="n">stop</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="wrap-collaborators-in-adapters">Wrap collaborators in Adapters</h1>
+  </li>
+</ul>
+
+<p>Паттерн адаптер позволяет для какого-то объекта реализовать интеферс, который ожидает другой класс для корректной работы.</p>
+
+<p>Допустим у нас есть класс логгер</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">BenchmarkedLogger</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">sink</span><span class="o">=</span><span class="vg">$stdout</span><span class="p">)</span>
+      <span class="vi">@sink</span> <span class="o">=</span> <span class="n">sink</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+      <span class="k">yield</span>
+      <span class="n">duration</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">-</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+      <span class="vi">@sink</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="s2">"[%1.3f] %s</span><span class="se">\n</span><span class="s2">"</span> <span class="o">%</span> <span class="p">[</span><span class="n">duration</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<p>Этот код работает прекрасно с объектами, которые поддерживают метод «. Например $stdout</p>
+
+<p>Но, что если у нас будет объект у которого нет метода « ?
+Для этого напишем адаптер, который позволит нам работать с текущей реализацией без проблем.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">BenchmarkedLogger</span>
+    <span class="k">class</span> <span class="nc">IrcBotSink</span>
+      <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+        <span class="vi">@bot</span> <span class="o">=</span> <span class="n">bot</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nf">&lt;&lt;</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="vi">@bot</span><span class="p">.</span><span class="nf">handlers</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">(</span><span class="ss">:log_info</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">sink</span><span class="p">)</span>
+      <span class="vi">@sink</span> <span class="o">=</span> <span class="k">case</span> <span class="n">sink</span>
+      <span class="k">when</span> <span class="no">Cinch</span><span class="o">::</span><span class="no">Bot</span> <span class="k">then</span> <span class="no">IrcBotSink</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">sink</span><span class="p">)</span>
+      <span class="k">else</span> <span class="n">sink</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<p>Таким образом у нас все инкапсулировано в отдельный класс с ожидаемым интерфейсом. Концепция уверенного кода подразумевает все инкапсулировать, чтобы у нас в методах были только ясные и понятный инструкции.</p>
+
+<ul>
+  <li>
+    <h1 id="use-transparent-adapters-to-gradually-introduce-abstraction">Use transparent adapters to gradually introduce abstraction</h1>
+  </li>
+</ul>
+
+<p>Прозрачный адаптер - это просто по сути объект, который делегирует все методы, которые отстутвуют в самом адаптере объекту, на котором адаптер был вызван.</p>
+
+<p>Из предыдушего примера с Logger мы можем переделать его так:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="nb">require</span> <span class="s1">'delegate'</span>
+  <span class="k">class</span> <span class="nc">BenchmarkedLogger</span>
+    <span class="k">class</span> <span class="nc">IrcBotSink</span> <span class="o">&lt;</span> <span class="no">DelegateClass</span><span class="p">(</span><span class="no">Cinch</span><span class="o">::</span><span class="no">Bot</span><span class="p">)</span>
+      <span class="k">def</span> <span class="nf">&lt;&lt;</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">handlers</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">(</span><span class="ss">:log_info</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">sink</span><span class="p">)</span>
+      <span class="vi">@sink</span> <span class="o">=</span> <span class="k">case</span> <span class="n">sink</span>
+      <span class="k">when</span> <span class="no">Cinch</span><span class="o">::</span><span class="no">Bot</span> <span class="k">then</span> <span class="no">IrcBotSink</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">sink</span><span class="p">)</span>
+      <span class="k">else</span> <span class="n">sink</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="reject-unworkable-values-with-preconditions">Reject unworkable values with preconditions</h1>
+  </li>
+</ul>
+
+<p>Смысл этого паттерна вызывать сразу ошибку, если класс ожидает аргументы, которые должны быть 100% обязательными.
+Если эти аргументы используют многие методы, которые могут привести к ошибке, вместо того, чтобы делать кучу проверок, мы можем сделать проверку сразу при инициализации класса.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">Employee</span>
+    <span class="nb">attr_accessor</span> <span class="ss">:name</span>
+    <span class="nb">attr_reader</span> <span class="ss">:hire_date</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">hire_date</span><span class="p">)</span>
+      <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+      <span class="nb">self</span><span class="p">.</span><span class="nf">hire_date</span> <span class="o">=</span> <span class="n">hire_date</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">hire_date</span><span class="o">=</span><span class="p">(</span><span class="n">new_hire_date</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="no">TypeError</span><span class="p">,</span> <span class="s2">"Invalid hire date"</span> <span class="k">unless</span>
+      <span class="n">new_hire_date</span><span class="p">.</span><span class="nf">is_a?</span><span class="p">(</span><span class="no">Date</span><span class="p">)</span>
+      <span class="vi">@hire_date</span> <span class="o">=</span> <span class="n">new_hire_date</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">due_for_tie_pin?</span>
+      <span class="p">((</span><span class="no">Date</span><span class="p">.</span><span class="nf">today</span> <span class="o">-</span> <span class="n">hire_date</span><span class="p">)</span> <span class="o">/</span> <span class="mi">365</span><span class="p">).</span><span class="nf">to_i</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">covered_by_pension_plan?</span>
+      <span class="n">hire_date</span><span class="p">.</span><span class="nf">year</span> <span class="o">&lt;</span> <span class="mi">2000</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">bio</span>
+      <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> has been a Yoyodyne employee since </span><span class="si">#{</span><span class="n">hire_date</span><span class="p">.</span><span class="nf">year</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="use-fetch-to-assert-the-presence-of-hash-keys">Use #fetch to assert the presence of Hash keys</h1>
+    <p>Используйте метод fetch для получения ключа в хэше.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="n">attributes</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:login</span><span class="p">)</span>
+  <span class="c1">#&lt;KeyError: key not found: :password&gt;</span>
+
+  <span class="n">attributes</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:password</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">raise</span> <span class="no">KeyError</span><span class="p">,</span> <span class="s2">"Password (or false) must be supplied"</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="use-fetch-for-defaults">Use #fetch for defaults</h1>
+  </li>
+</ul>
+
+<p>fetch можно так же использовать для установки значения по-умолчанию</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="n">attributes</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:logger</span><span class="p">)</span> <span class="p">{</span> <span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">)</span> <span class="p">}</span>
+  <span class="n">attributes</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:logger</span><span class="p">,</span> <span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">)</span> <span class="p">)</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="handle-special-cases-with-a-guard-clause">Handle special cases with a Guard Clause</h1>
+  </li>
+</ul>
+
+<p>Позволяет сделать return по условию и не делаеть лишних if else</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">current_logged_users</span>
+    <span class="k">return</span> <span class="n">o</span> <span class="k">if</span> <span class="n">logged_users</span><span class="p">.</span><span class="nf">nil?</span>
+
+    <span class="n">logged_users</span><span class="p">.</span><span class="nf">size</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>Represent special cases as objects aka NullObject</li>
+</ul>
+
+<p>Чтобы не делать лишние условия иногда удобно воспользоваться этим паттерном.
+Пример:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">current_user</span>
+    <span class="n">logged_user</span> <span class="o">||</span> <span class="no">NullUser</span><span class="p">.</span><span class="nf">new</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">NullUser</span>
+    <span class="k">def</span> <span class="nf">name</span>
+      <span class="ss">:guest</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="s2">"Hello </span><span class="si">#{</span><span class="n">current_user</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">"</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="yield-a-parameter-builder-object">Yield a parameter builder object</h1>
+    <p>Это просто передача в блок аргумента, с которым можно работать. Это удобнее выглядит.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">home_builder</span>
+    <span class="n">buulder</span> <span class="o">=</span> <span class="no">OtherBuilder</span><span class="p">.</span><span class="nf">new</span>
+    <span class="k">yield</span><span class="p">(</span><span class="n">buulder</span><span class="p">)</span> <span class="k">if</span> <span class="nb">block_given?</span>
+    <span class="o">...</span>
+  <span class="k">end</span>
+
+
+  <span class="n">home_builder</span> <span class="k">do</span> <span class="o">|</span><span class="n">builder</span><span class="o">|</span>
+    <span class="n">builder</span><span class="p">.</span><span class="nf">name</span> <span class="o">=</span> <span class="ss">:name</span>
+    <span class="n">builder</span><span class="p">.</span><span class="nf">other</span> <span class="o">=</span> <span class="ss">:other</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="receive-policies-instead-of-data">Receive policies instead of data</h1>
+  </li>
+</ul>
+
+<p>При работе с возможными исключениями бывает необходимо по-разному отработать ошибку.</p>
+
+<p>Для этого мы можем использовать несколько путей, но более гибкий является передача управления в блок или использования политик.
+Вот как это выглядит:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">delete_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+      <span class="k">begin</span>
+        <span class="no">File</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+      <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">error</span>
+        <span class="k">if</span> <span class="nb">block_given?</span> <span class="k">then</span> <span class="k">yield</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">else</span> <span class="k">raise</span> <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">delete_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="o">|</span>
+    <span class="n">send_email</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">delete_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="o">|</span>
+    <span class="nb">puts</span> <span class="s2">"can't delete </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="s2"> with </span><span class="si">#{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">delete_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">error_policy</span> <span class="o">=</span>
+    <span class="n">options</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:on_error</span><span class="p">)</span> <span class="p">{</span> <span class="o">-&gt;</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="p">{</span> <span class="k">raise</span> <span class="n">error</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="n">symlink_policy</span> <span class="o">=</span>
+    <span class="n">options</span><span class="p">.</span><span class="nf">fetch</span><span class="p">(</span><span class="ss">:on_symlink</span><span class="p">)</span> <span class="p">{</span> <span class="o">-&gt;</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="p">{</span> <span class="no">File</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="n">files</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+      <span class="k">begin</span>
+        <span class="k">if</span> <span class="no">File</span><span class="p">.</span><span class="nf">symlink?</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+          <span class="n">symlink_policy</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">else</span>
+          <span class="no">File</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">error</span>
+        <span class="n">error_policy</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
+<ul>
+  <li>
+    <h1 id="call-back-instead-of-returning">Call back instead of returning</h1>
+  </li>
+</ul>
+
+<p>Этот паттерн включает в себя подключение политик и паттерна command-query separation (CQS).
+CQS подразумевает, что метод возвращает либо команду, либо значение, но не оба.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">def</span> <span class="nf">import_purchase</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">import_callback</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">find_by_email</span><span class="p">(</span><span class="n">user_email</span><span class="p">)</span>
+    <span class="k">unless</span> <span class="n">user</span><span class="p">.</span><span class="nf">purchased_titles</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+      <span class="n">purchase</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="nf">purchases</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="ss">title: </span><span class="n">title</span><span class="p">,</span> <span class="ss">purchased_at: </span><span class="n">date</span><span class="p">)</span>
+      <span class="n">import_callback</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">purchase</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">import_purchase</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">user_email</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="p">,</span> <span class="n">purchase</span><span class="o">|</span>
+    <span class="n">send_book_invitation_email</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="nf">email</span><span class="p">,</span> <span class="n">purchase</span><span class="p">.</span><span class="nf">title</span><span class="p">)</span>
+  <span class="k">end</span></code></pre></figure>
+
+<p>Очень похоже на yield, за тем исключеним, что мы можем сделать много блоков(политик) и передавать методу в каждой ситуации свою политику.</p>
+
+<ul>
+  <li>
+    <h1 id="yield-a-status-object">Yield a status object</h1>
+  </li>
+</ul>
+
+<p>Мой любимый паттерн. Позволяет передавать статус результат выполнения функции и выполянть пользовательские действия дальше.</p>
+
+<p>Предыдущий пример был хороший, но у него нет ничего чтобы можно было отреагировать на ошибку или иные результаты выполнения метода.
+Мы могли бы использовать хэш и в него передавать полики, но тут немного удобнее.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">  <span class="k">class</span> <span class="nc">ImportStatus</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">success</span><span class="p">()</span> <span class="n">new</span><span class="p">(</span><span class="ss">:success</span><span class="p">)</span> <span class="k">end</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">redundant</span><span class="p">()</span> <span class="n">new</span><span class="p">(</span><span class="ss">:redundant</span><span class="p">)</span> <span class="k">end</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">failed</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="n">new</span><span class="p">(</span><span class="ss">:failed</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">end</span>
+
+    <span class="nb">attr_reader</span> <span class="ss">:error</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kp">nil</span><span class="p">)</span>
+      <span class="vi">@status</span> <span class="o">=</span> <span class="n">status</span>
+      <span class="vi">@error</span> <span class="o">=</span> <span class="n">error</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">on_success</span>
+      <span class="k">yield</span> <span class="k">if</span> <span class="vi">@status</span> <span class="o">==</span> <span class="ss">:success</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">on_redundant</span>
+      <span class="k">yield</span> <span class="k">if</span> <span class="vi">@status</span> <span class="o">==</span> <span class="ss">:redundant</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">on_failed</span>
+      <span class="k">yield</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">if</span> <span class="vi">@status</span> <span class="o">==</span> <span class="ss">:failed</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">import_purchase</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">user_email</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">find_by_email</span><span class="p">(</span><span class="n">user_email</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span><span class="p">.</span><span class="nf">purchased_titles</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+      <span class="k">yield</span> <span class="no">ImportStatus</span><span class="p">.</span><span class="nf">redundant</span>
+    <span class="k">else</span>
+      <span class="n">purchase</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="nf">purchases</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="ss">title: </span><span class="n">title</span><span class="p">,</span> <span class="ss">purchased_at:
+    </span><span class="n">date</span><span class="p">)</span>
+      <span class="k">yield</span> <span class="no">ImportStatus</span><span class="p">.</span><span class="nf">success</span>
+    <span class="k">end</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">error</span>
+      <span class="k">yield</span> <span class="no">ImportStatus</span><span class="p">.</span><span class="nf">failed</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">import_purchase</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">user_email</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span>
+    <span class="n">result</span><span class="p">.</span><span class="nf">on_success</span> <span class="k">do</span>
+      <span class="n">send_book_invitation_email</span><span class="p">(</span><span class="n">user_email</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="n">result</span><span class="p">.</span><span class="nf">on_redundant</span> <span class="k">do</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"Skipped </span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2"> for </span><span class="si">#{</span><span class="n">user_email</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+
+    <span class="n">result</span><span class="p">.</span><span class="nf">on_error</span> <span class="k">do</span> <span class="o">|</span><span class="n">error</span><span class="o">|</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">error</span> <span class="s2">"Error importing </span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2"> for </span><span class="si">#{</span><span class="n">user_email</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span></code></pre></figure>
+
 
   </div><a class="u-url" href="/ruby/2018/04/10/avdi_grimm.html" hidden></a>
 </article>
